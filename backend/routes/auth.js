@@ -75,12 +75,12 @@ router.get("/users", (req, res) => {
 // Log in
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-    console.log("req.body .. ",req.body);
+  console.log("req.body .. ", req.body);
   // Look for user email in the database
   let user = users.find((user) => {
     return user.email === email;
   });
-  console.log("user .. ",user);
+  console.log("user .. ", user);
   // If user not found, send error message
   if (!user) {
     return res.status(400).json({
