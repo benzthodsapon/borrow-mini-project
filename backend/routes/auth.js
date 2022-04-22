@@ -17,7 +17,6 @@ router.post(
   ],
   async (req, res) => {
     const { email, password } = req.body;
-
     // Validate user input
     const errors = validationResult(req);
 
@@ -45,9 +44,7 @@ router.post(
 
     // Hash password before saving to database
     const salt = await bcrypt.genSalt(10);
-    console.log("salt:", salt);
     const hashedPassword = await bcrypt.hash(password, salt);
-    console.log("hashed password:", hashedPassword);
 
     // Save email and password to database/array
     users.push({
@@ -78,12 +75,12 @@ router.get("/users", (req, res) => {
 // Log in
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-
+    console.log("req.body .. ",req.body);
   // Look for user email in the database
   let user = users.find((user) => {
     return user.email === email;
   });
-
+  console.log("user .. ",user);
   // If user not found, send error message
   if (!user) {
     return res.status(400).json({
