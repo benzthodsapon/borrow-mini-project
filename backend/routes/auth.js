@@ -144,53 +144,41 @@ router.post("/login", async (req, res) => {
             ],
           });
         } else {
+          //  Send JWT access token
+          const accessToken = await JWT.sign(
+            { email },
+            process.env.ACCESS_TOKEN_SECRET,
+            {
+              expiresIn: "1m",
+            }
+          );
+
+          // Refresh token
+          const refreshToken = await JWT.sign(
+            { email },
+            process.env.REFRESH_TOKEN_SECRET,
+            {
+              expiresIn: "5m",
+            }
+          );
+
+          // Set refersh token in refreshTokens array
+          refreshTokens.push(refreshToken);
+
           return res.status(200).json({
             message: "Login Success !",
-            name: user.name,
-            email: user.email,
-            role: user.role,
+            data: {
+              name: user.name,
+              email: user.email,
+              role: user.role,
+            },
+            accessToken,
+            refreshToken,
           });
         }
       }
     }
     client.end;
-  });
-
-  let isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({
-      errors: [
-        {
-          msg: "Email or password is invalid",
-        },
-      ],
-    });
-  }
-
-  //  Send JWT access token
-  const accessToken = await JWT.sign(
-    { email },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: "1m",
-    }
-  );
-
-  // Refresh token
-  const refreshToken = await JWT.sign(
-    { email },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: "5m",
-    }
-  );
-
-  // Set refersh token in refreshTokens array
-  refreshTokens.push(refreshToken);
-
-  res.json({
-    accessToken,
-    refreshToken,
   });
 });
 
@@ -246,7 +234,6 @@ router.post("/token", async (req, res) => {
   }
 });
 
-// Deauthenticate - log out
 // Delete refresh token
 router.delete("/logout", (req, res) => {
   const refreshToken = req.header("x-auth-token");
