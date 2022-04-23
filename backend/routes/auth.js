@@ -7,7 +7,7 @@ const client = require("../mongodb");
 require("dotenv").config();
 
 //create table users
-// client.query(`CREATE TABLE users (id SERIAL, name VARCHAR(10) NOT NULL, email VARCHAR(20) NOT NULL, password VARCHAR(20) NOT NULL, role VARCHAR(15) NOT NULL, PRIMARY KEY ("id"))`, (err, res) => {
+// client.query(`CREATE TABLE users (id SERIAL, name VARCHAR(100) NOT NULL, email VARCHAR(100) NOT NULL, password VARCHAR(100) NOT NULL, role VARCHAR(15) NOT NULL, PRIMARY KEY ("id"))`, (err, res) => {
 //     if(!err) {
 //         console.log("res : ", res.rows);
 //     } else {
@@ -28,7 +28,7 @@ router.post(
     }),
   ],
   async (req, res) => {
-    const { id, name, email, password, role } = req.body;
+    const { name, email, password, role } = req.body;
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -67,11 +67,8 @@ router.post(
 
     // Save email and password to database/array
     if (req.body) {
-      const query = `
-        INSERT INTO users (id, name, email, password, role)
-        VALUES ('${id}','${req.body.name}', '${req.body.email}', '${req.body.hashedPassword}',  '${req.body.role}')
-        `;
-      let params = [id, name, email, hashedPassword, role];
+      const query = `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)`;
+      let params = [name, email, hashedPassword, role];
       await client.query(query, params, (err, result, next) => {
         if (err) {
           console.error(err);
