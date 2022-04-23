@@ -6,15 +6,6 @@ const client = require("../mongodb");
 
 require("dotenv").config();
 
-//create table users
-// client.query(`CREATE TABLE users (id SERIAL, name VARCHAR(100) NOT NULL, email VARCHAR(100) NOT NULL, password VARCHAR(100) NOT NULL, role VARCHAR(15) NOT NULL, PRIMARY KEY ("id"))`, (err, res) => {
-//     if(!err) {
-//         console.log("res : ", res.rows);
-//     } else {
-//         console.log(err);
-//     }
-// })
-
 // delet users
 // client.query('DELETE FROM "users" WHERE "name" = $1', [userName]); // sends queries
 
