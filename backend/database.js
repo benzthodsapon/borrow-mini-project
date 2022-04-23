@@ -1,25 +1,30 @@
-const { MongoClient } = require("mongodb");
+const users = [
+  {
+    email: "john@gmail.com",
+    password: "random",
+  },
+  {
+    email: "jack@gmail.com",
+    password: "JackPassword",
+  },
+];
 
-async function main() {
-  const uri =
-    "mongodb+srv://benz:benzbenz1234@cluster0.fw6oq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
-  const client = new MongoClient(uri);
-  try {
-    await client.connect();
-    await listDatabases(client);
-  } catch (e) {
-    console.error(e);
-  } finally {
-    await client.close();
-  }
-}
+const publicPosts = [
+  {
+    title: "Post 1",
+    content: "Post 1 is free",
+  },
+  {
+    title: "Post 2",
+    content: "Post 2 is free",
+  },
+];
 
-main().catch(console.error);
+const privatePosts = [
+  {
+    title: "Post 3",
+    content: "Post 3 is private",
+  },
+];
 
-async function listDatabases(client) {
-  const databasesList = await client.db().admin().listDatabases();
-  console.log("databasesList: ", databasesList);
-  databasesList.databases.forEach((db) => {
-    console.log(`- ${db.name}`);
-  });
-}
+module.exports = { users, publicPosts, privatePosts };
