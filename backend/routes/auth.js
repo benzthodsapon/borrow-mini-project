@@ -69,29 +69,30 @@ router.post(
     if (req.body) {
       const query = `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)`;
       let params = [name, email, hashedPassword, role];
-      await client.query(query, params, (err, result, next) => {
+      await client.query(query, params, async (err, result) => {
         if (err) {
           console.error(err);
           return;
         } else {
+          // Do not include sensitive information in JWT
+          const accessToken = await JWT.sign(
+            { email },
+            process.env.ACCESS_TOKEN_SECRET,
+            {
+              expiresIn: "1m",
+            }
+          );
+
+          res.json({
+            accessToken,
+            result: result.rows,
+          });
+
           console.log("Data insert successful");
           return result;
         }
       });
     }
-
-    // Do not include sensitive information in JWT
-    const accessToken = await JWT.sign(
-      { email },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "1m",
-      }
-    );
-
-    res.json({
-      accessToken,
-    });
   }
 );
 
@@ -112,64 +113,73 @@ router.get("/users", async (req, res) => {
 });
 
 // Log in
-// router.post("/login", async (req, res) => {
-//   const { email, password } = req.body;
-//   console.log("req.body .. ", req.body);
-//   // Look for user email in the database
-//   let user = users.find((user) => {
-//     return user.email === email;
-//   });
-//   console.log("user .. ", user);
-//   // If user not found, send error message
-//   if (!user) {
-//     return res.status(400).json({
-//       errors: [
-//         {
-//           msg: "Invalid credentials",
-//         },
-//       ],
-//     });
-//   }
+router.post("/login", async (req, res) => {
+  let user = {};
+  const { name, email, password, role } = req.body;
+ 
+  // get user
+  await client.query(`Select * from users`, async (err, result) => {
+    if (result) {
+      // Look for user email in the database
+      user = result.rows.find((user) => {
+        return user.email === email;
+      });
+      
+      // Compare hased password with user password to see if they are valid
+      let isMatch = await bcrypt.compare(password, user.password);
 
-// Compare hased password with user password to see if they are valid
-//   let isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({
+          errors: [
+            {
+              msg: "Email or password is invalid",
+            },
+          ],
+        });
+      }
 
-//   if (!isMatch) {
-//     return res.status(401).json({
-//       errors: [
-//         {
-//           msg: "Email or password is invalid",
-//         },
-//       ],
-//     });
-//   }
+      if (!user) {
+        return res.status(400).json({
+          errors: [
+            {
+              msg: "Invalid credentials",
+            },
+          ],
+        });
+      }
+      return ;
+    } else {
+      console.log(err.message);
+    }
+    client.end;
+  });
 
-//   // Send JWT access token
-//   const accessToken = await JWT.sign(
-//     { email },
-//     process.env.ACCESS_TOKEN_SECRET,
-//     {
-//       expiresIn: "1m",
-//     }
-//   );
+  //  Send JWT access token
+  const accessToken = await JWT.sign(
+    { email },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: "1m",
+    }
+  );
 
-// Refresh token
-//   const refreshToken = await JWT.sign(
-//     { email },
-//     process.env.REFRESH_TOKEN_SECRET,
-//     {
-//       expiresIn: "5m",
-//     }
-//   );
+  // Refresh token
+  const refreshToken = await JWT.sign(
+    { email },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: "5m",
+    }
+  );
 
-//   // Set refersh token in refreshTokens array
-//   refreshTokens.push(refreshToken);
+  // Set refersh token in refreshTokens array
+  refreshTokens.push(refreshToken);
 
-//   res.json({
-//     accessToken,
-//     refreshToken,
-//   });
-// });
+  res.json({
+    accessToken,
+    refreshToken,
+  });
+});
 
 let refreshTokens = [];
 
@@ -199,37 +209,37 @@ router.post("/token", async (req, res) => {
     });
   }
 
-  //   try {
-  //     const user = await JWT.verify(
-  //       refreshToken,
-  //       process.env.REFRESH_TOKEN_SECRET
-  //     );
+  try {
+    const user = await JWT.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
 
-  //     const { email } = user;
-  //     const accessToken = await JWT.sign(
-  //       { email },
-  //       process.env.ACCESS_TOKEN_SECRET,
-  //       { expiresIn: "1m" }
-  //     );
-  //     res.json({ accessToken });
-  //   } catch (error) {
-  //     res.status(403).json({
-  //       errors: [
-  //         {
-  //           msg: "Invalid token",
-  //         },
-  //       ],
-  //     });
-  //   }
+    const { email } = user;
+    const accessToken = await JWT.sign(
+      { email },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "1m" }
+    );
+    res.json({ accessToken });
+  } catch (error) {
+    res.status(403).json({
+      errors: [
+        {
+          msg: "Invalid token",
+        },
+      ],
+    });
+  }
 });
 
 // Deauthenticate - log out
 // Delete refresh token
-// router.delete("/logout", (req, res) => {
-//   const refreshToken = req.header("x-auth-token");
+router.delete("/logout", (req, res) => {
+  const refreshToken = req.header("x-auth-token");
 
-//   refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
-//   res.sendStatus(204);
-// });
+  refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+  res.sendStatus(204);
+});
 
 module.exports = router;
