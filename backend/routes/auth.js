@@ -116,7 +116,7 @@ router.get("/users", async (req, res) => {
 router.post("/login", async (req, res) => {
   let user = {};
   const { name, email, password, role } = req.body;
- 
+
   // get user
   await client.query(`Select * from users`, async (err, result) => {
     if (result) {
@@ -124,35 +124,48 @@ router.post("/login", async (req, res) => {
       user = result.rows.find((user) => {
         return user.email === email;
       });
-      
-      // Compare hased password with user password to see if they are valid
-      let isMatch = await bcrypt.compare(password, user.password);
-
-      if (!isMatch) {
-        return res.status(401).json({
-          errors: [
-            {
-              msg: "Email or password is invalid",
-            },
-          ],
-        });
-      }
 
       if (!user) {
-        return res.status(400).json({
+        return res.status(400).send({
           errors: [
             {
               msg: "Invalid credentials",
             },
           ],
         });
+      } else {
+        let isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return res.status(401).json({
+            errors: [
+              {
+                msg: "Email or password is invalid",
+              },
+            ],
+          });
+        } else {
+          return res.status(200).json({
+            message: "Login Success !",
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          });
+        }
       }
-      return ;
-    } else {
-      console.log(err.message);
     }
     client.end;
   });
+
+  let isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({
+      errors: [
+        {
+          msg: "Email or password is invalid",
+        },
+      ],
+    });
+  }
 
   //  Send JWT access token
   const accessToken = await JWT.sign(
