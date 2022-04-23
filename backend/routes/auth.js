@@ -2,9 +2,21 @@ const router = require("express").Router();
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const JWT = require("jsonwebtoken");
-const { users } = require("../database");
+const client = require("../mongodb");
 
 require("dotenv").config();
+
+//create table users
+// client.query(`CREATE TABLE users (id SERIAL, name VARCHAR(10) NOT NULL, email VARCHAR(20) NOT NULL, password VARCHAR(20) NOT NULL, role VARCHAR(15) NOT NULL, PRIMARY KEY ("id"))`, (err, res) => {
+//     if(!err) {
+//         console.log("res : ", res.rows);
+//     } else {
+//         console.log(err);
+//     }
+// })
+
+// delet users
+// client.query('DELETE FROM "users" WHERE "name" = $1', [userName]); // sends queries
 
 // Sign up
 router.post(
@@ -16,8 +28,7 @@ router.post(
     }),
   ],
   async (req, res) => {
-    const { email, password } = req.body;
-    // Validate user input
+    const { id, name, email, password, role } = req.body;
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -26,31 +37,51 @@ router.post(
       });
     }
 
-    // Validate if user already exists
-    let user = users.find((user) => {
-      return user.email === email;
-    });
+    // get users
+    await client.query(`Select * from users`, (err, result) => {
+      if (result) {
+        // Validate if user already exists
+        let user = result.rows.find((user) => {
+          return user.email === email;
+        });
 
-    if (user) {
-      return res.status(200).json({
-        errors: [
-          {
-            email: user.email,
-            msg: "The user already exists",
-          },
-        ],
-      });
-    }
+        if (user) {
+          return res.status(200).json({
+            errors: [
+              {
+                email: user.email,
+                msg: "The user already exists",
+              },
+            ],
+          });
+        }
+        return result.rows;
+      } else {
+        console.log(err.message);
+      }
+    });
 
     // Hash password before saving to database
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Save email and password to database/array
-    users.push({
-      email,
-      password: hashedPassword,
-    });
+    if (req.body) {
+      const query = `
+        INSERT INTO users (id, name, email, password, role)
+        VALUES ('${id}','${req.body.name}', '${req.body.email}', '${req.body.hashedPassword}',  '${req.body.role}')
+        `;
+      let params = [id, name, email, hashedPassword, role];
+      await client.query(query, params, (err, result, next) => {
+        if (err) {
+          console.error(err);
+          return;
+        } else {
+          console.log("Data insert successful");
+          return result;
+        }
+      });
+    }
 
     // Do not include sensitive information in JWT
     const accessToken = await JWT.sign(
@@ -68,69 +99,80 @@ router.post(
 );
 
 // Get all users
-router.get("/users", (req, res) => {
-  res.json(users);
+router.get("/users", async (req, res) => {
+  client.query(`Select * from users`, (err, result) => {
+    if (res) {
+      const response = result.rows;
+      res.json({
+        response,
+      });
+      return result.rows;
+    } else {
+      console.log(err.message);
+    }
+    client.end;
+  });
 });
 
 // Log in
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  console.log("req.body .. ", req.body);
-  // Look for user email in the database
-  let user = users.find((user) => {
-    return user.email === email;
-  });
-  console.log("user .. ", user);
-  // If user not found, send error message
-  if (!user) {
-    return res.status(400).json({
-      errors: [
-        {
-          msg: "Invalid credentials",
-        },
-      ],
-    });
-  }
+// router.post("/login", async (req, res) => {
+//   const { email, password } = req.body;
+//   console.log("req.body .. ", req.body);
+//   // Look for user email in the database
+//   let user = users.find((user) => {
+//     return user.email === email;
+//   });
+//   console.log("user .. ", user);
+//   // If user not found, send error message
+//   if (!user) {
+//     return res.status(400).json({
+//       errors: [
+//         {
+//           msg: "Invalid credentials",
+//         },
+//       ],
+//     });
+//   }
 
-  // Compare hased password with user password to see if they are valid
-  let isMatch = await bcrypt.compare(password, user.password);
+// Compare hased password with user password to see if they are valid
+//   let isMatch = await bcrypt.compare(password, user.password);
 
-  if (!isMatch) {
-    return res.status(401).json({
-      errors: [
-        {
-          msg: "Email or password is invalid",
-        },
-      ],
-    });
-  }
+//   if (!isMatch) {
+//     return res.status(401).json({
+//       errors: [
+//         {
+//           msg: "Email or password is invalid",
+//         },
+//       ],
+//     });
+//   }
 
-  // Send JWT access token
-  const accessToken = await JWT.sign(
-    { email },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: "1m",
-    }
-  );
+//   // Send JWT access token
+//   const accessToken = await JWT.sign(
+//     { email },
+//     process.env.ACCESS_TOKEN_SECRET,
+//     {
+//       expiresIn: "1m",
+//     }
+//   );
 
-  // Refresh token
-  const refreshToken = await JWT.sign(
-    { email },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: "5m",
-    }
-  );
+// Refresh token
+//   const refreshToken = await JWT.sign(
+//     { email },
+//     process.env.REFRESH_TOKEN_SECRET,
+//     {
+//       expiresIn: "5m",
+//     }
+//   );
 
-  // Set refersh token in refreshTokens array
-  refreshTokens.push(refreshToken);
+//   // Set refersh token in refreshTokens array
+//   refreshTokens.push(refreshToken);
 
-  res.json({
-    accessToken,
-    refreshToken,
-  });
-});
+//   res.json({
+//     accessToken,
+//     refreshToken,
+//   });
+// });
 
 let refreshTokens = [];
 
@@ -160,37 +202,37 @@ router.post("/token", async (req, res) => {
     });
   }
 
-  try {
-    const user = await JWT.verify(
-      refreshToken,
-      process.env.REFRESH_TOKEN_SECRET
-    );
+  //   try {
+  //     const user = await JWT.verify(
+  //       refreshToken,
+  //       process.env.REFRESH_TOKEN_SECRET
+  //     );
 
-    const { email } = user;
-    const accessToken = await JWT.sign(
-      { email },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1m" }
-    );
-    res.json({ accessToken });
-  } catch (error) {
-    res.status(403).json({
-      errors: [
-        {
-          msg: "Invalid token",
-        },
-      ],
-    });
-  }
+  //     const { email } = user;
+  //     const accessToken = await JWT.sign(
+  //       { email },
+  //       process.env.ACCESS_TOKEN_SECRET,
+  //       { expiresIn: "1m" }
+  //     );
+  //     res.json({ accessToken });
+  //   } catch (error) {
+  //     res.status(403).json({
+  //       errors: [
+  //         {
+  //           msg: "Invalid token",
+  //         },
+  //       ],
+  //     });
+  //   }
 });
 
 // Deauthenticate - log out
 // Delete refresh token
-router.delete("/logout", (req, res) => {
-  const refreshToken = req.header("x-auth-token");
+// router.delete("/logout", (req, res) => {
+//   const refreshToken = req.header("x-auth-token");
 
-  refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
-  res.sendStatus(204);
-});
+//   refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+//   res.sendStatus(204);
+// });
 
 module.exports = router;
