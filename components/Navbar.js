@@ -1,15 +1,14 @@
-
 export default function Navbar() {
   return (
-    <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 dark:bg-gray-800">
+    <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 dark:bg-gray-200">
       <div className="container flex flex-wrap justify-between items-center mx-auto">
-        <a href="https://flowbite.com" className="flex items-center">
+        <a href="/product" className="flex items-center">
           <img
             src="/assets/home_icon.png"
             className="mr-1 h-12 xs:w-12 lg:h-20 lg:w-26 xl:h-20 xl:w-30 bg-transparent"
             alt="Flowbite Logo"
           />
-          <span className="self-center hover:text-gray-200 lg:text-3xl xs:text-xl font-mono whitespace-nowrap dark:text-white">
+          <span className="self-center hover:text-gray-200 lg:text-3xl xs:text-xl font-mono whitespace-nowrap font-mono font-medium text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
             Borrow Me .
           </span>
         </a>
@@ -54,7 +53,7 @@ export default function Navbar() {
                 className="block py-2 pr-4 pl-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white"
                 aria-current="page"
               >
-                Home
+                All Product
               </a>
             </li>
             <li>
@@ -62,7 +61,7 @@ export default function Navbar() {
                 href="#"
                 className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
               >
-                About
+                My Borrow
               </a>
             </li>
             <li>
@@ -70,23 +69,7 @@ export default function Navbar() {
                 href="#"
                 className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
               >
-                Services
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-              >
-                Pricing
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="block py-2 pr-4 pl-3 text-gray-700 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-              >
-                Contact
+                Logout
               </a>
             </li>
           </ul>

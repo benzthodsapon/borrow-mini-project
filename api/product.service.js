@@ -7,8 +7,6 @@ const getAllProduct = () => {
   return axios.get(PRODUCT_API);
 };
 
-console.log("getAllProduct .. ",getAllProduct);
-
 // const getProductById = () => {
 //   return axios.get(API_URL + "/public");
 // };

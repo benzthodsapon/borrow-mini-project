@@ -5,22 +5,20 @@ import { useRouter } from "next/router";
 //api
 import authService from "../api/auth.service";
 
-export default function Login() {
+export default function SignUp() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const [user, setUser] = useState({});
   const { type } = router.query;
 
-  useEffect(() => {}, []);
-
-  const handleLogin = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      await authService.login(email, password).then(
+      await authService.signup(name, email, password, type).then(
         (response) => {
-          if (response.data) {
-            if (type === "borrow" && response.data.role === "borrow") {
+          if (response.accessToken) {
+            if (type === "borrow") {
               router.push("/borrow");
             } else {
               router.push("/products");
@@ -51,9 +49,20 @@ export default function Login() {
                 </p>
               </div>
               <div className="px-8 py-6 mt-4 text-left bg-white shadow-lg rounded-lg">
-                <form onSubmit={handleLogin}>
+                <form onSubmit={handleSignup}>
                   <div className="mt-4">
                     <div>
+                      <label className="block" htmlFor="name">
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Name"
+                        className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                    </div>
+                    <div className="mt-4">
                       <label className="block" htmlFor="email">
                         Email
                       </label>
@@ -74,19 +83,13 @@ export default function Login() {
                         onChange={(e) => setPassword(e.target.value)}
                       />
                     </div>
-                    <div className="flex items-baseline justify-between">
+                    <div className="flex items-baseline justify-center">
                       <button
                         type="submit"
                         className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-900"
                       >
-                        Login
+                        Sign up
                       </button>
-                      <a
-                        href={`/signup?type=${type}`}
-                        className="text-sm text-blue-600 hover:underline"
-                      >
-                        Sign Up
-                      </a>
                     </div>
                   </div>
                 </form>

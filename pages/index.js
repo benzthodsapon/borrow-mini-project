@@ -1,28 +1,25 @@
 import styles from "../styles/Home.module.css";
 // import test from '../pages/api/hello'
 import { useEffect, useState } from "react";
-import ProductService from "../pages/api/product.service";
+// import ProductService from "../api/auth.service";
 
 //Router 
 import { useRouter } from 'next/router'
 
-// components
-import Navbar from "../components/Navbar";
-
 export default function Home() {
-  const [posts, setPosts] = useState([]);
+  // const [posts, setPosts] = useState([]);
   const router = useRouter()
 
-  useEffect(() => {
-    ProductService.getAllProduct().then(
-      (response) => {
-        setPosts(response.data);
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
-  }, []);
+  // useEffect(() => {
+  //   ProductService.getAllProduct().then(
+  //     (response) => {
+  //       setPosts(response.data);
+  //     },
+  //     (error) => {
+  //       console.log(error);
+  //     }
+  //   );
+  // }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center relative overflow-hidden sm:py-12">

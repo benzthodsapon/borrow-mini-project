@@ -156,7 +156,7 @@ router.post("/login", async (req, res) => {
           // Set refersh token in refreshTokens array
           refreshTokens.push(refreshToken);
 
-          return res.status(200).json({
+          return res.send({
             message: "Login Success !",
             data: {
               name: user.name,
