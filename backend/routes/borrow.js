@@ -32,44 +32,6 @@ router.post("/imageupload", async (req, res) => {
   }
 });
 
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, "./");
-//   },
-//   filename: function (req, file, cb) {
-//     const ext = file.mimetype.split("/")[1];
-//     cb(null, `uploads/${file.originalname}-${Date.now()}.${ext}`);
-//   },
-// });
-
-// let upload = multer({ storage: storage });
-
-// router.post("/imageupload", upload.single("image"), (req, res) => {
-//   try {
-//     upload(req, res, function (err) {
-//       if (!req.file) {
-//         return res.send("Please select an image to upload");
-//       } else if (err instanceof multer.MulterError) {
-//         return res.send(err);
-//       } else if (err) {
-//         return res.send(err);
-//       }
-
-//       const classifiedsadd = {
-//         image: req.file.filename,
-//       };
-
-//       // const sql = "INSERT INTO users SET ?";
-//       // connection.query(sql, classifiedsadd, (err, results) => {
-//       //   if (err) throw err;
-//       //   res.json({ success: 1 });
-//       // });
-//     });
-//   } catch (err) {
-//     console.log(err);
-//   }
-// });
-
 // Get all order borrow
 router.get("/all", async (req, res) => {
   client.query(`Select * from borrows`, (err, result) => {
@@ -89,10 +51,9 @@ router.get("/all", async (req, res) => {
 // Create order borrow
 router.post("/new", async (req, res) => {
   const { title, category, image, description, price, rate, count } = req.body;
-
   if (req.body) {
     const query = `INSERT INTO borrows (title, category, image, description, price, rate, count) VALUES ($1, $2, $3, $4, $5, $6, $7)`;
-    let params = [title, category, image, description, rate, price, count];
+    let params = [title, category, image, description, price, rate, count];
     await client.query(query, params, async (err, result) => {
       if (err) {
         console.error(err);

@@ -11,7 +11,7 @@ import AuthService from "../api/auth.service";
 import ProductService from "../api/product.service";
 
 export default function Order() {
-
+  const [borrow, setBorrow] = useState([{}])
   const [currentUser, setCurrentUser] = useState(undefined);
   const router = useRouter();
 
@@ -23,12 +23,20 @@ export default function Order() {
       setCurrentUser(undefined);
       router.push("/");
     }
-  }, [currentUser]);
+  },[]);
 
    // get my order borrow profuct 
    useEffect(() => {
-  
-  }, [])
+    ProductService.getAllBorrow().then(
+      (response) => {
+        setBorrow(response.data.response);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+  }, []);
+
 
   return (
     <>
@@ -39,7 +47,7 @@ export default function Order() {
           My Order Borrow
         </p>
           <div className="grid grid-cols-5 gap-5 -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg">
-            {/* {posts.map((item) => {
+            {borrow.map((item) => {
               return (
                 <>
                   <Card
@@ -48,13 +56,13 @@ export default function Order() {
                     category={item.category}
                     image={item.image}
                     price={item.price}
-                    count={item.rating.count}
-                    rate={item.rating.rate}
+                    count={item.count}
+                    rate={item.rate}
                     title={item.title}
                   />
                 </>
               );
-            })} */}
+            })}
           </div>
         </div>
       </div>

@@ -22,14 +22,13 @@ client.connect();
 
 
 //create table borrow
-// client.query(`CREATE TABLE borrows (id BIGSERIAL, title VARCHAR(100) NOT NULL, category VARCHAR(100) NOT NULL, image VARCHAR(100) NOT NULL, description VARCHAR(100) NOT NULL, price INT NOT NULL, rate INT NOT NULL, count INT NOT NULL, PRIMARY KEY ("id"))`, (err, res) => {
+// client.query(`CREATE TABLE borrows (id BIGSERIAL, title VARCHAR(500) NOT NULL, category VARCHAR(500) NOT NULL, image VARCHAR(500) NOT NULL, description VARCHAR(1000) NOT NULL, price INT NOT NULL, rate FLOAT NOT NULL, count INT NOT NULL, PRIMARY KEY ("id"))`, (err, res) => {
 //     if(!err) {
 //         console.log(res.rows);
 //     } else {
 //         console.log(err);
 //     }
 // })
-
 
 // //create table wishlist
 // client.query(`CREATE TABLE wishlist (id BIGSERIAL, title VARCHAR(100) NOT NULL, category VARCHAR(100) NOT NULL, image VARCHAR(100) NOT NULL, description VARCHAR(100) NOT NULL, price VARCHAR(100) NOT NULL , rating INT NOT NULL, count INT NOT NULL, PRIMARY KEY ("id"))`, (err, res) => {

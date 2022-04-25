@@ -7,13 +7,14 @@ const getAllProduct = () => {
   return axios.get(PRODUCT_API);
 };
 
+// create borrow
 const createBorrow = (
   title,
   category,
   image,
   description,
   price,
-  rating,
+  rate,
   count
 ) => {
   return axios.post(API_URL + "/new", {
@@ -22,7 +23,7 @@ const createBorrow = (
     image,
     description,
     price,
-    rating,
+    rate,
     count,
   }).then((response) => {
     if(response) {
@@ -32,9 +33,19 @@ const createBorrow = (
   })
 };
 
+// get all borrow 
+const getAllBorrow = () => {
+  return axios.get(API_URL + "/all").then((response) => {
+    if(response) {
+      return response;
+    }
+  })
+};
+
 const productService = {
   getAllProduct,
-  createBorrow
+  createBorrow,
+  getAllBorrow
 };
 
 export default productService;
