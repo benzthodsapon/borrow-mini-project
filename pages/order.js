@@ -47,10 +47,11 @@ export default function Order() {
           My Order Borrow
         </p>
           <div className="grid grid-cols-5 gap-5 -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg">
-            {borrow.map((item) => {
+            {borrow && borrow.map((item, index) => {
               return (
                 <>
                   <Card
+                    key={index}
                     idProduct={item.id}
                     des={item.description}
                     category={item.category}

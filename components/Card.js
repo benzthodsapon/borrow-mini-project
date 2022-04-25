@@ -1,5 +1,5 @@
 import React from "react";
-import { Rate } from "antd";
+import { message, Rate } from "antd";
 import { useRouter } from "next/router";
 import BorrowService from "../api/product.service";
 
@@ -31,6 +31,7 @@ const Card = ({
         (response) => {
           if (response) {
             console.log("response 2 : ", response);
+            message.success(response.data.message)
           }
         },
         (error) => {

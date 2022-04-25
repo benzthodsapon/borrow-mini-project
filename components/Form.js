@@ -1,48 +1,51 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Upload, message, Button, Rate } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
 import BorrowService from "../api/product.service";
 import axios from "axios";
+
+
+async function postImage({ image }) {
+  const formData = new FormData();
+  await formData.append("image", image)
+  console.log(formData);
+  const result = await axios.post('http://localhost:3000/upload/images', formData, { headers: {'Content-Type': 'multipart/form-data'}})
+  return result.data
+}
+
+async function getImage({ key }) {
+  const result = await axios.get(`http://localhost:3000/upload/images/${key}`);
+  return result;
+}
+
 
 const FormBorrow = ({ onSubmit }) => {
   const router = useRouter();
   const { id } = router.query;
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState([]);
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [rate, setRating] = useState(0);
   const [count, setCount] = useState(0);
-  const [userInfo, setuserInfo] = useState({
-    file: [],
-    filepreview: null,
-  });
+  const [file, setFile] = useState()
+  const [imagesPreview, setImagePreview] = useState("")
 
-  const handleInputChange = (event) => {
-    setuserInfo({
-      ...userInfo,
-      file: event.target.files[0],
-      filepreview: URL.createObjectURL(event.target.files[0]),
-    });
-    submit();
-  };
-
-  const submit = async () => {
-    const formdata = new FormData();
-    formdata.append("avatar", userInfo.file);
-    axios
-      .post("http://localhost:3000/borrow/imageupload", formdata, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-      .then((res) => {
-        console.log(" res : ", res);
-        if (res.data.success === 1) {
-          alert("Image upload successfully");
-        }
-      });
-  };
+  const fileSelected = event => {
+    const file = event.target.files[0]
+    if(file) {
+      setFile(file)
+      submit(event, file);
+    }
+	}
+  
+  const submit = async (event, files)=> {
+    event.preventDefault();
+    const result = await postImage({ image: files });
+    setImagePreview(result?.location)
+    setImage([result.image, ...image])
+  }
 
   const handleSubmit = async (e) => {
     // create borrow
@@ -51,7 +54,7 @@ const FormBorrow = ({ onSubmit }) => {
       await BorrowService.createBorrow(
         title,
         category,
-        image,
+        imagesPreview,
         description,
         price,
         rate,
@@ -60,6 +63,10 @@ const FormBorrow = ({ onSubmit }) => {
         (response) => {
           if (response) {
             console.log("response 2 : ", response);
+            message.success(response.data.message);
+            setTimeout(() => {
+              window.location.reload();
+            }, 500)
           }
         },
         (error) => {
@@ -116,7 +123,7 @@ const FormBorrow = ({ onSubmit }) => {
                   type="file"
                   className="form-control"
                   name="image"
-                  onChange={handleInputChange}
+                  onChange={fileSelected}
                 />
               </div>
               <div className="mt-4">

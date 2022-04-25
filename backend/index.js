@@ -14,7 +14,9 @@ app.use("/auth", require("./routes/auth"));
 
 // borrow
 app.use("/borrow", require("./routes/borrow"));
-app.use('/uploads', express.static('uploads'))
+
+// upload
+app.use('/upload', require("./routes/upload"));
 
 app.listen(3000, () => {
   console.log("Listening on port 3000");
