@@ -1,7 +1,7 @@
 import styles from "../styles/Home.module.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-
+import { message } from "antd";
 //api
 import authService from "../api/auth.service";
 
@@ -19,8 +19,10 @@ export default function SignUp() {
         (response) => {
           if (response.accessToken) {
             if (type === "borrow") {
+              message.success("Register Borrow Success !");
               router.push("/borrow");
             } else {
+              message.success("Register Success !");
               router.push("/products");
             }
           }

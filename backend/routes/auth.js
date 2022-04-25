@@ -6,9 +6,6 @@ const client = require("../mongodb");
 
 require("dotenv").config();
 
-// delet users
-// client.query('DELETE FROM "users" WHERE "name" = $1', [userName]); // sends queries
-
 // Sign up
 router.post(
   "/signup",

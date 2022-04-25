@@ -1,6 +1,7 @@
 import styles from "../styles/Home.module.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { message } from 'antd';
 
 //api
 import authService from "../api/auth.service";
@@ -28,6 +29,7 @@ export default function Login() {
           }
         },
         (error) => {
+          message.error(error.response.data.errors[0].msg, 1.5)
           console.log(error);
         }
       );

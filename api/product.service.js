@@ -1,34 +1,40 @@
 import axios from "axios";
 
-const API_URL = "/products";
+const API_URL = "http://localhost:3000/borrow";
 const PRODUCT_API = "https://fakestoreapi.com/products";
 
 const getAllProduct = () => {
   return axios.get(PRODUCT_API);
 };
 
-// const getProductById = () => {
-//   return axios.get(API_URL + "/public");
-// };
-
-// const addProduct= () => {
-//   return axios.get(API_URL + "/public");
-// };
-
-// const deleteProduct = () => {
-//   return axios.get(API_URL + "/public");
-// };
-
-// const updateProduct = () => {
-//   return axios.get(API_URL + "/public");
-// };
-
-// const getAllPrivatePosts = () => {
-//   return axios.get(API_URL + "/private", { headers: authHeader() });
-// };
+const createBorrow = (
+  title,
+  category,
+  image,
+  description,
+  price,
+  rating,
+  count
+) => {
+  return axios.post(API_URL + "/new", {
+    title,
+    category,
+    image,
+    description,
+    price,
+    rating,
+    count,
+  }).then((response) => {
+    if(response) {
+      console.log("response : ",response);
+    }
+    return response;
+  })
+};
 
 const productService = {
   getAllProduct,
+  createBorrow
 };
 
 export default productService;
